@@ -66,6 +66,7 @@ function test_GET_reuse()
     @test Dict("foo" => "bar", "baz" => "zod") == data["args"]
     @test haskey(data["headers"], "x-custom-header")
     @test data["headers"]["x-custom-header"] == "ding1"
+    @test !haskey(data["headers"], "user-agent")
 
     res, http_status, errormessage = curl_execute(curl, "", ["X-Custom-Header: ding2"]; url="https://postman-echo.com/get?foo=bear&baz=zeroed")
 
@@ -78,6 +79,27 @@ function test_GET_reuse()
     @test Dict("foo" => "bear", "baz" => "zeroed") == data["args"]
     @test haskey(data["headers"], "x-custom-header")
     @test data["headers"]["x-custom-header"] == "ding2"
+end
+
+function test_GET_useragent()
+    CurlHTTP.setDefaultUserAgent("CurlHTTP/0.1")
+
+    curl = CurlEasy(
+        url="https://postman-echo.com/get?foo=bar&baz=zod",
+        method=CurlHTTP.GET,
+        verbose=gbVerbose
+    )
+
+    res, http_status, errormessage = curl_execute(curl)
+
+    @test CURLE_OK == res
+    @test 200 == http_status
+    databuffer = curl.userdata[:databuffer]
+    data = JSON.parse(String(databuffer))
+    @test "https://postman-echo.com/get?foo=bar&baz=zod" == data["url"]
+    @test Dict("foo" => "bar", "baz" => "zod") == data["args"]
+    @test "CurlHTTP/0.1" == data["headers"]["user-agent"]
+    CurlHTTP.setDefaultUserAgent(nothing)
 end
 
 function test_DELETE()
@@ -303,6 +325,7 @@ end
         test_GET()
         test_GET_debug()
         test_GET_reuse()
+        test_GET_useragent()
     end
     @testset "HEAD" begin test_HEAD() end
     @testset "HEAD" begin test_PUT() end

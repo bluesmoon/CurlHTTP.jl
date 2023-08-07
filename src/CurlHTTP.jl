@@ -124,6 +124,14 @@ Internal markers for the data channel
 const CRLF = UInt8.(['\r', '\n'])
 const VERBOSE_INFO = [CURLINFO_TEXT, CURLINFO_HEADER_IN, CURLINFO_HEADER_OUT, CURLINFO_SSL_DATA_IN, CURLINFO_SSL_DATA_OUT]
 
+"""
+Default user agent to use if not otherwise specified. This allows an application to set the user agent string
+at __init__ time rather than at constructor time.
+
+Use `CurlHTTP.setDefaultUserAgent()` to set it. Set it to `nothing` to unset it.
+"""
+DEFAULT_USER_AGENT = nothing
+setDefaultUserAgent(ua::Union{AbstractString, Nothing}) = global DEFAULT_USER_AGENT = ua
 
 
 """
@@ -198,7 +206,7 @@ mutable struct CurlEasy <: CurlHandle
         certpath::AbstractString                  = "",
         keypath::AbstractString                   = "",
         cacertpath::AbstractString                = "",
-        useragent::Union{AbstractString, Nothing} = nothing
+        useragent::Union{AbstractString, Nothing} = DEFAULT_USER_AGENT
     )
         curl = curl_easy_init()
 
