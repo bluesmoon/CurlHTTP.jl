@@ -1,5 +1,7 @@
 `CurlHTTP` is a wrapper around [LibCURL](https://github.com/JuliaWeb/LibCURL.jl) that provides a more Julia like interface to doing HTTP via `Curl`.
 
+In particular, this module implements the `CurlEasy` and `CurlMulti` interfaces for curl, and allows using Client TLS certificates.
+
 This module reexports `LibCURL` so everything available in `LibCURL` will be available when this module is used.
 
 See https://curl.se/libcurl/c/libcurl-tutorial.html for a tutorial on using libcurl in C. The Julia interface should be similar.
