@@ -1,5 +1,9 @@
 `CurlHTTP` is a wrapper around [LibCURL](https://github.com/JuliaWeb/LibCURL.jl) that provides a more Julia like interface to doing HTTP via `Curl`.
 
+[![Travis Build](https://app.travis-ci.com/bluesmoon/CurlHTTP.jl.svg?branch=main)](https://app.travis-ci.com/bluesmoon/CurlHTTP.jl)
+[![GH Build](https://github.com/bluesmoon/CurlHTTP.jl/workflows/CI/badge.svg)](https://github.com/bluesmoon/CurlHTTP.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage Status](https://coveralls.io/repos/github/bluesmoon/CurlHTTP.jl/badge.svg?branch=)](https://coveralls.io/github/bluesmoon/CurlHTTP.jl?branch=)
+
 In particular, this module implements the `CurlEasy` and `CurlMulti` interfaces for curl, and allows using Client TLS certificates.
 
 This module reexports `LibCURL` so everything available in `LibCURL` will be available when this module is used.
