@@ -331,16 +331,27 @@ LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, ptrval::Ptr) = curl_easy_seto
 LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, ptrval::AbstractString) = curl_easy_setopt(curl.handle, opt, ptrval)
 LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, param::Any) = curl_easy_setopt(curl.handle, opt, param)
 
-LibCURL.curl_easy_escape(curl::CurlEasy, s, l) = (s_esc = curl_easy_escape(curl.handle, s, l); s_ret = deepcopy(pointer_to_string(s_esc)); curl_free(s_esc); s_ret;)
+function LibCURL.curl_easy_escape(curl::CurlEasy, s, l)
+    s_esc = curl_easy_escape(curl.handle, s, l)
+    s_len = ccall(:strlen, Csize_t, (Ptr{Cvoid}, ), s_esc)
+    s_ret = Array{UInt8}(undef, s_len)
+
+    unsafe_copyto!(pointer(s_ret), s_esc, s_len)
+
+    curl_free(s_esc)
+    String(s_ret)
+end
 
 LibCURL.curl_easy_duphandle(curl::CurlEasy) = CurlEasy(curl_easy_duphandle(curl.handle))
 
 """
-    curl_url_escape(::CurlEasy, ::String) → String
+    * curl_url_escape(::CurlEasy, ::String) → String
+    * curl_url_escape(::String) → String
 
 Use curl to do URL escaping
 """
 curl_url_escape(curl::CurlEasy, s::AbstractString) = curl_easy_escape(curl, s, 0)
+curl_url_escape(s::AbstractString) = curl_url_escape(CurlEasy(curl_easy_init()), s)
 
 """
 Cleanup the `CurlHandle` automatically determining what needs to be done for `curl_easy` vs `curl_multi` handles.

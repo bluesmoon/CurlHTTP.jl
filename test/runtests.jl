@@ -320,6 +320,10 @@ function test_Certs()
     @test CurlEasy(cacertpath=LibCURL.cacert) isa CurlEasy
 end
 
+function test_UrlEscape()
+    @test "hello%20world%2C%20how%20are%20you%3F%20I%27m%20fine%21%20%23escape" == curl_url_escape("hello world, how are you? I'm fine! #escape")
+end
+
 @testset "Curl" begin
     @testset "GET" begin
         test_GET()
@@ -335,6 +339,7 @@ end
     @testset "writeCB"   begin test_writeCB()   end
     @testset "headerCB"  begin test_headerCB()  end
     @testset "multiPOST" begin test_multiPOST() end
-    @testset "test_multi_writeCB" begin test_multi_writeCB() end
-    @testset "test Certs" begin test_Certs() end
+    @testset "multi writeCB" begin test_multi_writeCB() end
+    @testset "Certs" begin test_Certs() end
+    @testset "URL Escape" begin test_UrlEscape() end
 end
