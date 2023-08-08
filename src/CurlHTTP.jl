@@ -363,8 +363,10 @@ function LibCURL.curl_multi_perform(curl::CurlMulti)
         end
 
         if mc != CURLM_OK
+            # COV_EXCL_START
             @error "curl_multi failed, code $(mc)."
             return mc
+            # COV_EXCL_STOP
         end
     end
 
@@ -478,18 +480,15 @@ function _create_default_buffer_handler(curl::CurlEasy, buffername::Symbol, buff
     buffer = curl.userdata[buffername] = buffertype[]
 
     if isbitstype(buffertype)
-        expectedtype = typeof(buffer)
-        return data -> if isa(data, expectedtype)
-            append!(buffer, data)
-        else
-            @warn "$buffername got data of type $(typeof(data)) expected $(expectedtype)"
-        end
+        (mtd, expectedtype) = (append!, typeof(buffer))
     else
-        return data -> if isa(data, buffertype)
-            push!(buffer, data)
-        else
-            @warn "$buffername got data of type $(typeof(data)) expected $(buffertype)"
-        end
+        (mtd, expectedtype) = (push!, buffertype)
+    end
+
+    return data -> if isa(data, expectedtype)
+        mtd(buffer, data)
+    else
+        @warn "$buffername got data of type $(typeof(data)) expected $(expectedtype)"
     end
 end
 
@@ -673,10 +672,12 @@ function curl_execute(curl::CurlMulti)
         # Returns a Ptr{LibCURL.CURLMsg}
         m = curl_multi_info_read(curl.handle, msgq)
         if m == C_NULL
+            # COV_EXCL_START
             if msgq[] > 0
                 @error "curl_multi_info_read returned NULL while $(msgq[]) messages still remain queued"
             end
             break
+            # COV_EXCL_STOP
         end
 
         # Convert from Ptr to LibCURL.CURLMsg
@@ -687,8 +688,10 @@ function curl_execute(curl::CurlMulti)
 
             local easy = findfirst(x -> x.handle == easy_h, curl.pool)
             if isnothing(easy)
+                # COV_EXCL_START
                 @error "Couldn't find handle $easy_h"
                 continue
+                # COV_EXCL_STOP
             end
             easy = curl.pool[easy]
 
