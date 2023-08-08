@@ -537,7 +537,7 @@ function curl_setup_request(
 
     if !isempty(requestBody)
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, ncodeunits(requestBody))
-        curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, requestBody)
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestBody)
 
         curl.userdata[:requestBody] = requestBody
 
