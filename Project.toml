@@ -1,7 +1,7 @@
 name = "CurlHTTP"
 uuid = "d54d1f39-fb68-436b-8c41-ced000dfba13"
 authors = ["Philip Tellis <philip.tellis@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
