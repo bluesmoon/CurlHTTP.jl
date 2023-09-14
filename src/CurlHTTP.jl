@@ -1,5 +1,5 @@
 """
-Wrapper around `LibCURL` to make it more Julia like.
+Wrapper around [`LibCURL`](https://github.com/JuliaWeb/LibCURL.jl) to make it more Julia like.
 
 This module reexports `LibCURL` so everything available in `LibCURL` will be available when this module is used.
 
@@ -9,77 +9,77 @@ See https://curl.se/libcurl/c/libcurl-tutorial.html for a tutorial on using libc
 
 ## GET a URL and read the response from the internal buffer
 ```julia
-    using CurlHTTP
+using CurlHTTP
 
-    curl = CurlEasy(
-        url="https://postman-echo.com/get?foo=bar",
-        method=CurlHTTP.GET,
-        verbose=true
-    )
+curl = CurlEasy(
+    url="https://postman-echo.com/get?foo=bar",
+    method=CurlHTTP.GET,
+    verbose=true
+)
 
-    res, http_status, errormessage = curl_execute(curl)
+res, http_status, errormessage = curl_execute(curl)
 
 
-    # curl.userdata[:databuffer] is a Vector{UInt8} containing the bytes of the response
-    responseBody = String(curl.userdata[:databuffer])
+# curl.userdata[:databuffer] is a Vector{UInt8} containing the bytes of the response
+responseBody = String(curl.userdata[:databuffer])
 
-    # curl.userdata[:responseHeaders] is a Vector{String} containing the response headers
-    responseHeaders = curl.userdata[:responseHeaders]
+# curl.userdata[:responseHeaders] is a Vector{String} containing the response headers
+responseHeaders = curl.userdata[:responseHeaders]
 ```
 
 
 ## POST to a URL and read the response with your own callback
 ```julia
-    using CurlHTTP
+using CurlHTTP
 
-    curl = CurlEasy(
-        url="https://postman-echo.com/post",
-        method=CurlHTTP.POST,
-        verbose=true
-    )
+curl = CurlEasy(
+    url="https://postman-echo.com/post",
+    method=CurlHTTP.POST,
+    verbose=true
+)
 
-    requestBody = "{\"testName\":\"test_writeCB\"}"
-    headers = ["Content-Type: application/json"]
+requestBody = "{\"testName\":\"test_writeCB\"}"
+headers = ["Content-Type: application/json"]
 
-    databuffer = UInt8[]
+databuffer = UInt8[]
 
-    res, http_status, errormessage = curl_execute(curl, requestBody, headers) do d
-        if isa(d, Array{UInt8})
-            append!(databuffer, d)
-        end
+res, http_status, errormessage = curl_execute(curl, requestBody, headers) do d
+    if isa(d, Array{UInt8})
+        append!(databuffer, d)
     end
+end
 
-    responseBody = String(databuffer)
+responseBody = String(databuffer)
 ```
 
 ## Multiple concurrent requests using CurlMulti
 ```julia
-    using CurlHTTP
+using CurlHTTP
 
-    curl = CurlMulti()
+curl = CurlMulti()
 
-    for i in 1:3
-        local easy = CurlEasy(
-            url="https://postman-echo.com/post?val=\$i",
-            method=CurlHTTP.POST,
-            verbose=true,
-        )
+for i in 1:3
+    local easy = CurlEasy(
+        url="https://postman-echo.com/post?val=\$i",
+        method=CurlHTTP.POST,
+        verbose=true,
+    )
 
-        requestBody = "{\"testName\":\"test_multi_writeCB\",\"value\":\$i}"
-        headers     = ["Content-Type: application/json", "X-App-Value: \$(i*5)"]
+    requestBody = "{\"testName\":\"test_multi_writeCB\",\"value\":\$i}"
+    headers     = ["Content-Type: application/json", "X-App-Value: \$(i*5)"]
 
-        CurlHTTP.curl_setup_request_response(
-            easy,
-            requestBody,
-            headers
-        )
+    CurlHTTP.curl_setup_request_response(
+        easy,
+        requestBody,
+        headers
+    )
 
-        curl_multi_add_handle(curl, easy)
-    end
+    curl_multi_add_handle(curl, easy)
+end
 
-    res = curl_execute(curl)
+res = curl_execute(curl)
 
-    responses = [p.userdata for p in curl.pool]  # userdata contains response data, status code and error message
+responses = [p.userdata for p in curl.pool]  # userdata contains response data, status code and error message
 ```
 """
 module CurlHTTP
@@ -106,13 +106,13 @@ function __init__()
 end
 
 """
-HTTP Methods recognized by CurlHTTP. Current values are:
-* GET: Make a GET request
-* POST: Upload data using POST
-* HEAD: Make a HEAD request and specify no response body
-* DELETE: Make a DELETE request
-* PUT: Currently not supported
-* OPTIONS: Make an OPTIONS request
+HTTP Methods recognized by `CurlHTTP`. Current values are:
+* _GET_: Make a GET request
+* _POST_: Upload data using POST
+* _HEAD_: Make a HEAD request and specify no response body
+* _DELETE_: Make a DELETE request
+* _PUT_: Currently not supported
+* _OPTIONS_: Make an OPTIONS request
 """
 @enum HTTPMethod GET=1 POST=2 HEAD=3 DELETE=4 PUT=5 OPTIONS=6
 
@@ -128,9 +128,13 @@ const VERBOSE_INFO = [CURLINFO_TEXT, CURLINFO_HEADER_IN, CURLINFO_HEADER_OUT, CU
 Default user agent to use if not otherwise specified. This allows an application to set the user agent string
 at __init__ time rather than at constructor time.
 
-Use `CurlHTTP.setDefaultUserAgent()` to set it. Set it to `nothing` to unset it.
+Use [`CurlHTTP.setDefaultUserAgent()`](@ref) to set it. Set it to `nothing` to unset it.
 """
 DEFAULT_USER_AGENT = nothing
+
+"""
+Set the default user agent string to use for all requests. Set this to `nothing` to disable setting the user agent string.
+"""
 setDefaultUserAgent(ua::Union{AbstractString, Nothing}) = global DEFAULT_USER_AGENT = ua
 
 
@@ -145,7 +149,7 @@ Wrapper around a `curl_easy` handle. This is what we get from calling `curl_easy
 Most `curl_easy_*` functions will work on a `CurlEasy` object without any other changes.
 
 ## Summary
-`struct CurlEasy <: CurlHandle`
+`struct CurlEasy <:` [`CurlHandle`](@ref)
 
 ## Fields
 `handle::Ptr`
@@ -166,7 +170,7 @@ Most `curl_easy_*` functions will work on a `CurlEasy` object without any other 
 `CurlEasy(curl::Ptr)`
 : Create a `CurlEasy` wrapper around an existing `LibCURL` `curl` handle.
 
-`CurlEasy(; url::String, method::HTTPMethod, verbose::Bool, certpath::String, keypath::String, cacertpath::String, useragent::String|Nothing)`
+`CurlEasy(; url::String, method::`[`HTTPMethod`](@ref)`, verbose::Bool, certpath::String, keypath::String, cacertpath::String, useragent::String|Nothing)`
 : Create a new `curl` object with default settings and wrap it.  The default settings are:
    * FOLLOWLOCATION
    * SSL_VERIFYPEER
@@ -283,22 +287,22 @@ end
 Wrapper around a `curl_multi` handle. This is what we get from calling `curl_multi_init`
 
 ## Summary
-`struct CurlMulti <: CurlHandle`
+`struct CurlMulti <:` [`CurlHandle`](@ref)
 
 ## Fields
 `handle::Ptr`
 : A C pointer to the curl_multi handle
 
-`pool::CurlEasy[]`
-: An array of `CurlEasy` handles that are added to this `CurlMulti` handle. These can be added via the constructor or via a call to `curl_multi_add_handle`, and
+`pool::`[`CurlEasy`](@ref)`[]`
+: An array of [`CurlEasy`](@ref) handles that are added to this `CurlMulti` handle. These can be added via the constructor or via a call to `curl_multi_add_handle`, and
   may be removed via a call to `curl_multi_remove_handle`.
 
 ## Constructors
 `CurlMulti()`
 : Default constructor that calls `curl_multi_init` and sets up an empty pool
 
-`CurlMulti(::CurlEasy[])`
-: Constructor that accepts a Vector of `CurlEasy` objects, creates a `curl_multi` handle, and adds the easy handles to it.
+`CurlMulti(::`[`CurlEasy`](@ref)`[])`
+: Constructor that accepts a Vector of [`CurlEasy`](@ref) objects, creates a `curl_multi` handle, and adds the easy handles to it.
 """
 mutable struct CurlMulti <: CurlHandle
     handle::Ptr
@@ -317,20 +321,43 @@ mutable struct CurlMulti <: CurlHandle
     end
 end
 
+"""
+Cleanup everything created by the [`CurlEasy`](@ref) constructor. See the [upstream docs](https://curl.se/libcurl/c/curl_easy_cleanup.html) for more details.
+"""
 LibCURL.curl_easy_cleanup(curl::CurlEasy) = (if curl.headers != C_NULL curl_slist_free_all(curl.headers); curl.headers = C_NULL; end; st=curl_easy_cleanup(curl.handle); curl.handle=C_NULL; st)
 
+"""
+Cleanup everything created by the [`CurlMulti`](@ref) constructor. See the [upstream docs](https://curl.se/libcurl/c/curl_multi_cleanup.html) for more details.
+"""
 LibCURL.curl_multi_cleanup(curl::CurlMulti) = (for easy in curl.pool curl_multi_remove_handle(curl.handle, easy.handle); curl_easy_cleanup(easy); end; empty!(curl.pool); curl_multi_cleanup(curl.handle))
 
+"""
+Perform a [`CurlEasy`](@ref) transfer synchronously. See the [upstream docs](https://curl.se/libcurl/c/curl_easy_perform.html) for more details.
+"""
 LibCURL.curl_easy_perform(curl::CurlEasy) = (res = curl_easy_perform(curl.handle); if !isnothing(get(curl.userdata, :data_channel, nothing)) put!(curl.userdata[:data_channel], EOF); end; res)
 
 
 
+"""
+Set options for the [`CurlEasy`](@ref) handle. See the [upstream docs](https://curl.se/libcurl/c/curl_easy_setopt.html) for all possible options, and links to documentation for each option.
+"""
 LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, ptrval::Integer) = curl_easy_setopt(curl.handle, opt, ptrval)
 LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, ptrval::Array{T,N} where N) where T = curl_easy_setopt(curl.handle, opt, ptrval)
 LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, ptrval::Ptr) = curl_easy_setopt(curl.handle, opt, ptrval)
 LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, ptrval::AbstractString) = curl_easy_setopt(curl.handle, opt, ptrval)
 LibCURL.curl_easy_setopt(curl::CurlEasy, opt::Any, param::Any) = curl_easy_setopt(curl.handle, opt, param)
 
+"""
+Clone a [`CurlEasy`](@ref) handle. See the [upstream docs](https://curl.se/libcurl/c/curl_easy_duphandle.html) for more details.
+"""
+LibCURL.curl_easy_duphandle(curl::CurlEasy) = CurlEasy(curl_easy_duphandle(curl.handle))
+
+"""
+URL escape a Julia string using a [`CurlEasy`](@ref) handle to make it safe for use as a URL.
+See the [upstream docs](https://curl.se/libcurl/c/curl_easy_escape.html)
+
+The return value is a Julia string with memory owned by Julia, so there's no risk of leaking memory.
+"""
 function LibCURL.curl_easy_escape(curl::CurlEasy, s, l)
     s_esc = curl_easy_escape(curl.handle, s, l)
     s_len = ccall(:strlen, Csize_t, (Ptr{Cvoid}, ), s_esc)
@@ -342,11 +369,9 @@ function LibCURL.curl_easy_escape(curl::CurlEasy, s, l)
     String(s_ret)
 end
 
-LibCURL.curl_easy_duphandle(curl::CurlEasy) = CurlEasy(curl_easy_duphandle(curl.handle))
-
 """
-    * curl_url_escape(::CurlEasy, ::String) → String
-    * curl_url_escape(::String) → String
+    curl_url_escape(::CurlEasy, ::String) → String
+    curl_url_escape(::String) → String
 
 Use curl to do URL escaping
 """
@@ -354,12 +379,15 @@ curl_url_escape(curl::CurlEasy, s::AbstractString) = curl_easy_escape(curl, s, 0
 curl_url_escape(s::AbstractString) = curl_url_escape(CurlEasy(curl_easy_init()), s)
 
 """
-Cleanup the `CurlHandle` automatically determining what needs to be done for `curl_easy` vs `curl_multi` handles.
-In general, this will be called automatically when the `CurlHandle` gets garbage collected.
+Cleanup the [`CurlHandle`](@ref) automatically determining what needs to be done for `curl_easy` vs `curl_multi` handles.
+In general, this will be called automatically when the [`CurlHandle`](@ref) gets garbage collected.
 """
 curl_cleanup(curl::CurlEasy)  = curl_easy_cleanup(curl)
 curl_cleanup(curl::CurlMulti) = curl_multi_cleanup(curl)
 
+"""
+Perform all [`CurlEasy`](@ref) transfers attached to a [`CurlMulti`](@ref) handle asynchronously. See the [upstream docs](https://curl.se/libcurl/c/curl_multi_perform.html) for more details.
+"""
 LibCURL.curl_multi_perform(curl::CurlMulti, still_running::Ref{Cint}) = curl_multi_perform(curl.handle, still_running)
 function LibCURL.curl_multi_perform(curl::CurlMulti)
     still_running = Ref{Cint}(1)
@@ -390,11 +418,18 @@ Run either `curl_easy_perform` or `curl_multi_perform` depending on the type of 
 curl_perform(curl::CurlEasy)  = curl_easy_perform(curl)
 curl_perform(curl::CurlMulti) = curl_multi_perform(curl)
 
+"""
+Adds a [`CurlEasy`](@ref) handle to the [`CurlMulti`](@ref) pool. See the [upstream docs](https://curl.se/libcurl/c/curl_multi_add_handle.html)
+"""
 function LibCURL.curl_multi_add_handle(multi::CurlMulti, easy::CurlEasy)
     push!(multi.pool, easy)
     curl_multi_add_handle(multi.handle, easy.handle)
 end
 
+"""
+Remove a [`CurlEasy`](@ref) handle from the [`CurlMulti`](@ref) pool. See the [upstream docs](https://curl.se/libcurl/c/curl_multi_remove_handle.html).
+Pass in either the [`CurlEasy`](@ref) handle or its `CurlHandle.uuid`.
+"""
 function LibCURL.curl_multi_remove_handle(multi::CurlMulti, easy::CurlEasy)
     filter!(pool_entry -> pool_entry.uuid != easy.uuid, multi.pool)
     curl_multi_remove_handle(multi.handle, easy.handle)
@@ -439,9 +474,9 @@ function curl_cb_preamble(curlbuf::Ptr{Cvoid}, s::Csize_t, n::Csize_t, p_ctxt::P
 end
 
 """
-Default write callback that puts the data stream as a `Vector{UInt8}` onto a `Channel` passed in via curl_easy_setopt(CURLOPT_WRITEDATA).
+Default write callback that puts the data stream as a `Vector{UInt8}` onto a `Channel` passed in via `curl_easy_setopt(CURLOPT_WRITEDATA)`.
 
-This callback is called by curl when data is available to be read and is set up in `curl_setup_request`
+This callback is called by curl when data is available to be read and is set up in [`curl_setup_request`](@ref)
 """
 function curl_write_cb(curlbuf::Ptr{Cvoid}, s::Csize_t, n::Csize_t, p_ctxt::Ptr{Cvoid})::Csize_t
     (sz, data, ch) = curl_cb_preamble(curlbuf, s, n, p_ctxt)
@@ -454,9 +489,9 @@ function curl_write_cb(curlbuf::Ptr{Cvoid}, s::Csize_t, n::Csize_t, p_ctxt::Ptr{
 end
 
 """
-Default header callback that puts the current header as a `crlf` terminate `String` onto a `Channel` passed in via curl_easy_setopt(CURLOPT_HEADERDATA)
+Default header callback that puts the current header as a `crlf` terminate `String` onto a `Channel` passed in via `curl_easy_setopt(CURLOPT_HEADERDATA)`.
 
-This callback is called by curl when header data is available to be read and is set up in `curl_setup_request`
+This callback is called by curl when header data is available to be read and is set up in [`curl_setup_request`](@ref)
 """
 function curl_header_cb(curlbuf::Ptr{Cvoid}, s::Csize_t, n::Csize_t, p_ctxt::Ptr{Cvoid})::Csize_t
     (sz, data, ch) = curl_cb_preamble(curlbuf, s, n, p_ctxt)
@@ -523,7 +558,7 @@ function curl_add_headers(curl::CurlEasy, headers::Vector{String}; append::Bool=
 end
 
 """
-Prepare a `CurlEasy` object for making a request.
+Prepare a [`CurlEasy`](@ref) object for making a request.
 
 * Adds the `requestBody` and a corresponding `Content-Length`
 * Adds headers
@@ -608,16 +643,16 @@ setup_response_handler(::Nothing, ::Any) = nothing
 """
 Setup the request object and response handlers in preparation to execute a request.
 
-When using the `CurlEasy` interface, this method is called internally by `curl_execute`, however when using the
-`CurlMulti` interface, it is necessary to call this on every `CurlEasy` handle added to the `CurlMulti` handle.
+When using the [`CurlEasy`](@ref) interface, this method is called internally by [`curl_execute`](@ref), however when using the
+[`CurlMulti`](@ref) interface, it is necessary to call this on every [`CurlEasy`](@ref) handle added to the [`CurlMulti`](@ref) handle.
 
 This method allows you to set up your own response data and header handlers that receive streamed data. If you do
 not pass in a handler, default handlers will be set up that write binary data as bytes (`Vector{UInt8}`) to 
 `curl.userdata[:databuffer]` and an array of String response headers (`Vector{String}`) to `curl.userdata[:responseHeaders]`.
 
 ## Arguments
-`curl::CurlEasy`
-: The `CurlEasy` handle to operate on
+`curl::`[`CurlEasy`](@ref)
+: The [`CurlEasy`](@ref) handle to operate on
 
 `requestBody::String`
 : Any request body text that should be passed on to the server. Typically used for `POST` requests. Leave this as an empty
@@ -637,12 +672,12 @@ not pass in a handler, default handlers will be set up that write binary data as
   If not specified, a default handler will be used.  Set this explicitly to `nothing` to disable handling of HTTP response header data.
 
 `url::AbstractString=""`
-: The URL to use for this request. This permanently overrides the `url` passed in to the `CurlEasy` constructor. If not specified, then the previous value
-  of the `CurlEasy`'s url is reused.
+: The URL to use for this request. This permanently overrides the `url` passed in to the [`CurlEasy`](@ref) constructor. If not specified, then the previous value
+  of the [`CurlEasy`](@ref)'s url is reused.
 
 ## Returns
 
-The `CurlEasy` object.
+The [`CurlEasy`](@ref) object.
 """
 function curl_setup_request_response(
     curl::CurlEasy,
@@ -666,11 +701,11 @@ function curl_setup_request_response(
 end
 
 """
-    `curl_execute(::CurlMulti)` → `CURLMcode`
+    curl_execute(::CurlMulti) → CURLMcode
 
-Executes all pending `CurlEasy` attached to the `CurlMulti` handle and returns a `CURLMcode` indicating success or failure.
+Executes all pending [`CurlEasy`](@ref) attached to the [`CurlMulti`](@ref) handle and returns a `CURLMcode` indicating success or failure.
 
-In most cases, this function should return `CURLM_OK` even if there were failures in individual transfers. Each `CurlEasy` handle
+In most cases, this function should return `CURLM_OK` even if there were failures in individual transfers. Each [`CurlEasy`](@ref) handle
 will have `userdata[:http_status]` set and `userdata[:errormessage]` will be set in case of an error.
 
 This function will print errors or warnings to the Logger for unexpected states. File a bug if you see any of these.
@@ -724,10 +759,10 @@ end
 
 
 """
-    * `curl_execute(data_handler::Function, ::CurlEasy, ::String, ::Vector{String}; url::String)` → `(CURLCode, Int64, String)`
-    * `curl_execute(::CurlEasy, ::String, Vector{String}; url::String, data_handler::Function, header_handler::Function)  → `(CURLCode, Int64, String)`
+    curl_execute(data_handler::Function, ::CurlEasy, ::String, ::Vector{String}; url::String) → (CURLCode, Int64, String)
+    curl_execute(::CurlEasy, ::String, Vector{String}; url::String, data_handler::Function, header_handler::Function)  → (CURLCode, Int64, String)
 
-Execute a `CurlEasy` handle optionally passing in a `requestBody` (for POSTs), any HTTP request headers, a request URL, and handlers for response
+Execute a [`CurlEasy`](@ref) handle optionally passing in a `requestBody` (for POSTs), any HTTP request headers, a request URL, and handlers for response
 data and headers.
 
 In its first form this method accepts the `data_handler` as the first argument allowing you to use `curl_execute(curl) do data ... end` to handle the data.
@@ -778,7 +813,7 @@ end
 """
     curl_response_status(::CurlEasy) → Int64
 
-Get the HTTP status code of the most recent response from the `CurlEasy` object.
+Get the HTTP status code of the most recent response from the [`CurlEasy`](@ref) object.
 """
 function curl_response_status(curl::CurlEasy)
     http_code = Ref{Clong}()

@@ -1,3 +1,6 @@
 .DS_Store
 *.swp
 *.cov
+docs/build/
+docs/Project.toml
+Manifest.toml
