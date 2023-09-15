@@ -2,6 +2,7 @@
 
 [![GH Build](https://github.com/bluesmoon/CurlHTTP.jl/workflows/CI/badge.svg)](https://github.com/bluesmoon/CurlHTTP.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage Status](https://coveralls.io/repos/github/bluesmoon/CurlHTTP.jl/badge.svg?branch=)](https://coveralls.io/github/bluesmoon/CurlHTTP.jl?branch=)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://bluesmoon.github.io/CurlHTTP.jl/)
 
 In particular, this module implements the `CurlEasy` and `CurlMulti` interfaces for curl, and allows using Client TLS certificates.
 
