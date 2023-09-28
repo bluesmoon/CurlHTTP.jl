@@ -65,13 +65,13 @@ See https://curl.se/libcurl/c/libcurl-tutorial.html for a tutorial on using libc
 
     for i in 1:3
         local easy = CurlEasy(
-            url="https://postman-echo.com/post?val=\$i",
+            url="https://postman-echo.com/post?val=$i",
             method=CurlHTTP.POST,
             verbose=true,
         )
 
-        requestBody = "{\"testName\":\"test_multi_writeCB\",\"value\":\$i}"
-        headers     = ["Content-Type: application/json", "X-App-Value: \$(i*5)"]
+        requestBody = "{\"testName\":\"test_multi_writeCB\",\"value\":$i}"
+        headers     = ["Content-Type: application/json", "X-App-Value: $(i*5)"]
 
         CurlHTTP.curl_setup_request_response(
             easy,
