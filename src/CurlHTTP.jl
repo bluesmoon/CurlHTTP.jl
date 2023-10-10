@@ -509,7 +509,7 @@ end
 [Internal] curl debug callback to log informational text, header data, and SSL data transferred over the network.
 This will only run if curl is configured in verbose mode.
 """
-function curl_debug_cb(curl::Ptr{Cvoid}, type::Cint, curlbuf::Ptr{Cvoid}, sz::Culong, p_ctxt::Ptr{Cvoid})::Csize_t
+function curl_debug_cb(curl::Ptr{Cvoid}, type::Cint, curlbuf::Ptr{Cvoid}, sz::Csize_t, p_ctxt::Ptr{Cvoid})::Csize_t
     if type ∉ VERBOSE_INFO
         return Culong(0)
     end
