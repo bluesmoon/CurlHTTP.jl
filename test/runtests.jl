@@ -313,7 +313,7 @@ function test_multi_writeCB()
 
         @test CURLM_OK == curl_multi_remove_handle(curl, p.uuid)
     end
-    @test nothing == curl_multi_remove_handle(curl, CurlHTTP.UUIDs.uuid4())
+    @test nothing == curl_multi_remove_handle(curl, string(CurlHTTP.UUIDs.uuid4()))
 end
 
 function test_Certs()
