@@ -297,7 +297,8 @@ function test_multi_writeCB()
     @test CURLM_OK == res
     @test 3 == length(responses)
 
-    @testset "Response $(r[:i])" for r in responses
+    @testset "Response $(p.userdata[:i])" for p in curl.pool
+        r = p.userdata
         @test haskey(r, :http_status)
         @test r[:http_status] == 200
 
@@ -309,7 +310,10 @@ function test_multi_writeCB()
 
         @test haskey(r, :errormessage)
         @test "" == r[:errormessage]
+
+        @test CURLM_OK == curl_multi_remove_handle(curl, p.uuid)
     end
+    @test nothing == curl_multi_remove_handle(curl, CurlHTTP.UUIDs.uuid4())
 end
 
 function test_Certs()

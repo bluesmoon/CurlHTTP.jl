@@ -395,7 +395,7 @@ function LibCURL.curl_multi_perform(curl::CurlMulti)
     numfds = Ref{Cint}()
 
     while still_running[] > 0
-        mc = curl_multi_perform(curl.handle, still_running)
+        mc = curl_multi_perform(curl, still_running)
 
         if mc == CURLM_OK
             mc = curl_multi_wait(curl.handle, C_NULL, 0, 1000, numfds)
@@ -434,7 +434,8 @@ function LibCURL.curl_multi_remove_handle(multi::CurlMulti, easy::CurlEasy)
     filter!(pool_entry -> pool_entry.uuid != easy.uuid, multi.pool)
     curl_multi_remove_handle(multi.handle, easy.handle)
 end
-function LibCURL.curl_multi_remove_handle(multi::CurlMulti, easy_uuid::AbstractString)
+LibCURL.curl_multi_remove_handle(multi::CurlMulti, easy_uuid::AbstractString) = curl_multi_remove_handle(multi, Base.UUID(easy_uuid))
+function LibCURL.curl_multi_remove_handle(multi::CurlMulti, easy_uuid::Base.UUID)
     easy = findfirst(pool_entry -> pool_entry.uuid == easy_uuid, multi.pool)
     if isnothing(easy)
         return nothing
@@ -442,8 +443,7 @@ function LibCURL.curl_multi_remove_handle(multi::CurlMulti, easy_uuid::AbstractS
 
     easy = multi.pool[easy]
 
-    filter!(pool_entry -> pool_entry.uuid != easy_uuid, multi.pool)
-    curl_multi_remove_handle(multi.handle, easy.handle)
+    curl_multi_remove_handle(multi, easy)
 end
 
 
