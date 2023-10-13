@@ -1,4 +1,4 @@
-using CurlHTTP, Test, JSON
+using CurlHTTP, Test, JSON3
 
 gbVerbose = false
 
@@ -19,7 +19,7 @@ function test_GET()
 
     @test CURLE_OK == res
     @test 200 == http_status
-    data = JSON.parse(String(databuffer))
+    data = JSON3.read(databuffer, Dict{String, Any})
     @test "https://postman-echo.com/get?foo=bar&baz=zod" == data["url"]
     @test Dict("foo" => "bar", "baz" => "zod") == data["args"]
     @test haskey(data["headers"], "x-custom-header")
@@ -39,7 +39,7 @@ function test_GET_debug()
     @test CURLE_OK == res
     @test 200 == http_status
     databuffer = curl.userdata[:databuffer]
-    data = JSON.parse(String(databuffer))
+    data = JSON3.read(databuffer, Dict{String, Any})
     @test "https://postman-echo.com/get?foo=bar&baz=zod" == data["url"]
     @test Dict("foo" => "bar", "baz" => "zod") == data["args"]
     @test "" == errormessage
@@ -61,7 +61,7 @@ function test_GET_reuse()
     @test 200 == http_status
     @test "" == errormessage
     databuffer = curl.userdata[:databuffer]
-    data = JSON.parse(String(databuffer))
+    data = JSON3.read(databuffer, Dict{String, Any})
     @test "https://postman-echo.com/get?foo=bar&baz=zod" == data["url"]
     @test Dict("foo" => "bar", "baz" => "zod") == data["args"]
     @test haskey(data["headers"], "x-custom-header")
@@ -74,7 +74,7 @@ function test_GET_reuse()
     @test 200 == http_status
     @test "" == errormessage
     databuffer = curl.userdata[:databuffer]
-    data = JSON.parse(String(databuffer))
+    data = JSON3.read(databuffer, Dict{String, Any})
     @test "https://postman-echo.com/get?foo=bear&baz=zeroed" == data["url"]
     @test Dict("foo" => "bear", "baz" => "zeroed") == data["args"]
     @test haskey(data["headers"], "x-custom-header")
@@ -95,7 +95,7 @@ function test_GET_useragent()
     @test CURLE_OK == res
     @test 200 == http_status
     databuffer = curl.userdata[:databuffer]
-    data = JSON.parse(String(databuffer))
+    data = JSON3.read(databuffer, Dict{String, Any})
     @test "https://postman-echo.com/get?foo=bar&baz=zod" == data["url"]
     @test Dict("foo" => "bar", "baz" => "zod") == data["args"]
     @test "CurlHTTP/0.1" == data["headers"]["user-agent"]
@@ -119,7 +119,7 @@ function test_DELETE()
 
     @test CURLE_OK == res
     @test 200 == http_status
-    data = JSON.parse(String(databuffer))
+    data = JSON3.read(databuffer, Dict{String, Any})
     @test "https://postman-echo.com/delete?foo=bar&baz=zod" == data["url"]
     @test Dict("foo" => "bar", "baz" => "zod") == data["args"]
     @test isnothing(data["json"])
@@ -222,8 +222,8 @@ function test_writeCB()
     @test CURLE_OK == res
     @test 200 == http_status
     @test 2 * length(requestBody) < length(databuffer)  # We expect requestBody to be repeated twice in the response
-    data = JSON.parse(String(databuffer))
-    reqB = JSON.parse(requestBody)
+    data = JSON3.read(databuffer, Dict{String, Any})
+    reqB = JSON3.read(requestBody, Dict{String, Any})
     @test reqB == data["data"] == data["json"]
     @test "CurlHTTP Test" == data["headers"]["user-agent"]
     @test "" == errormessage
@@ -304,8 +304,8 @@ function test_multi_writeCB()
 
         @test 2 * length(r[:requestBody]) < length(r[:databuffer])
 
-        data = JSON.parse(String(r[:databuffer]))
-        reqB = JSON.parse(r[:requestBody])
+        data = JSON3.read(String(r[:databuffer]), Dict{String, Any})
+        reqB = JSON3.read(r[:requestBody], Dict{String, Any})
         @test reqB == data["data"] == data["json"]
 
         @test haskey(r, :errormessage)
