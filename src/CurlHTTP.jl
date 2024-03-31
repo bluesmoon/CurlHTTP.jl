@@ -667,7 +667,7 @@ not pass in a handler, default handlers will be set up that write binary data as
 : A function to handle any response Body data. This function should accept a single argument of type `Vector{UInt8}`. Its return value will be ignored.
   If not specified, a default handler will be used.  Set this explicitly to `nothing` to disable handling of HTTP response body data.
 
-`data_handler::Union{Function, Nothing} = <default>`
+`header_handler::Union{Function, Nothing} = <default>`
 : A function to handle any response Header data. This function should accept a single argument of type `String`. Its return value will be ignored.
   If not specified, a default handler will be used.  Set this explicitly to `nothing` to disable handling of HTTP response header data.
 
@@ -706,7 +706,7 @@ end
 Executes all pending [`CurlEasy`](@ref) attached to the [`CurlMulti`](@ref) handle and returns a `CURLMcode` indicating success or failure.
 
 In most cases, this function should return `CURLM_OK` even if there were failures in individual transfers. Each [`CurlEasy`](@ref) handle
-will have `userdata[:http_status]` set and `userdata[:errormessage]` will be set in case of an error.
+will have `curl.userdata[:http_status]` set and `curl.userdata[:errormessage]` will be set in case of an error.
 
 This function will print errors or warnings to the Logger for unexpected states. File a bug if you see any of these.
 """
@@ -769,7 +769,7 @@ In its first form this method accepts the `data_handler` as the first argument a
 In this case, response headers are ignored.
 
 In its second form, both data and header handlers are passed in as keyword arguments. If not specified, then default handlers are set up that write to
-`userdata[:databuffer]` and `userdata[:responseHeaders]` respectively.  You may explicitly set the handler to `nothing` to avoid handling data or headers.
+`curl.userdata[:databuffer]` and `curl.userdata[:responseHeaders]` respectively.  You may explicitly set the handler to `nothing` to avoid handling data or headers.
 This can have a small improvement in memory utilization.
 """
 curl_execute(
