@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/cache@v1
         with:
           version: '1.6'
       - name: Install dependencies
