@@ -91,3 +91,4 @@ See https://curl.se/libcurl/c/libcurl-tutorial.html for a tutorial on using libc
 
 * [Slides from JuliaCon 2024](https://speakerdeck.com/bluesmoon/curling-with-julia)
 * [Video from JuliaCon 2024](https://www.youtube.com/watch?v=x9_qyfZ9PfA)
+* [CAJUN Meetup](https://www.meetup.com/julia-cajun/events/299775540/)
