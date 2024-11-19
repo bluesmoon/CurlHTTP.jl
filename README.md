@@ -86,3 +86,8 @@ See https://curl.se/libcurl/c/libcurl-tutorial.html for a tutorial on using libc
 
     responses = [p.userdata for p in curl.pool]  # userdata contains response data, status code and error message
 ```
+
+# External links about CurlHTTP
+
+* [Slides from JuliaCon 2024](https://speakerdeck.com/bluesmoon/curling-with-julia)
+* [Video from JuliaCon 2024](https://www.youtube.com/watch?v=x9_qyfZ9PfA)
