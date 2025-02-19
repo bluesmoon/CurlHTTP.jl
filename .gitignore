@@ -1,6 +1,7 @@
 .DS_Store
 *.swp
 *.cov
+*.mem
 docs/build/
 docs/Project.toml
 Manifest.toml
