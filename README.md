@@ -10,6 +10,21 @@ This module reexports `LibCURL` so everything available in `LibCURL` will be ava
 
 See https://curl.se/libcurl/c/libcurl-tutorial.html for a tutorial on using libcurl in C. The Julia interface should be similar.
 
+# Other options for HTTP in Julia
+
+* HTTP.jl - pure Julia
+   * Supports client and server mode as well as websockets
+   * Complicated to do mutual TLS certificates
+   * No single-threaded parallel requests
+* Downloads.jl - wraps LibCurl.jl
+   * Limited HTTP functionality
+   * No single-threaded parallel requests
+   * Maintained and used by Pkg.jl
+* CurlHTTP.jl (this package) - wraps LibCurl.jl
+   * Easy mutual TLS
+   * Single-threaded parallel requests
+   * Response streaming to a callback function or IOStream
+
 # Examples
 
 ## GET a URL and read the response from the internal buffer

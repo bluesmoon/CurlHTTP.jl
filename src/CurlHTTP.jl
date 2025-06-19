@@ -168,10 +168,24 @@ Most `curl_easy_*` functions will work on a `CurlEasy` object without any other 
 
 ## Constructors
 `CurlEasy(curl::Ptr)`
-: Create a `CurlEasy` wrapper around an existing `LibCURL` `curl` handle.
 
-`CurlEasy(; url::String, method::`[`HTTPMethod`](@ref)`, verbose::Bool, certpath::String, keypath::String, cacertpath::String, useragent::String|Nothing)`
-: Create a new `curl` object with default settings and wrap it.  The default settings are:
+Create a `CurlEasy` wrapper around an existing `LibCURL` `curl` handle.
+
+```
+CurlEasy(;
+    url::String,
+    method::`[`HTTPMethod`](@ref)`,
+    verbose::Bool,
+    certpath::String,
+    keypath::String,
+    cacertpath::String,
+    useragent::String|Nothing
+)
+```
+
+Create a new `curl` object with default settings and wrap it.
+
+The default settings are:
    * FOLLOWLOCATION
    * SSL_VERIFYPEER
    * SSL_VERIFYHOST
@@ -183,7 +197,7 @@ Most `curl_easy_*` functions will work on a `CurlEasy` object without any other 
    * TRANSFER_ENCODING
    * DNS_CACHE_TIMEOUT disabled
 
-   Additionally the following options are set based on passed in parameters:
+Additionally the following options are set based on passed in parameters:
    * POST if `method` is POST
    * HTTPGET if `method` is GET
    * NOBODY if `method` is HEAD
