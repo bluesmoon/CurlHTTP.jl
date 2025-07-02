@@ -194,7 +194,6 @@ The default settings are:
    * TCP_FASTOPEN disabled
    * TCP_KEEPALIVE
    * ACCEPT_ENCODING best supported
-   * TRANSFER_ENCODING
    * DNS_CACHE_TIMEOUT disabled
 
 Additionally the following options are set based on passed in parameters:
@@ -252,7 +251,6 @@ mutable struct CurlEasy <: CurlHandle
         curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN,      0)     # Do not use TCP Fastopen since it prevents connection reuse
         curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE,     1)     # Use TCP Keepalive
         curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING,   "")    # Use best supported encoding (compression) method. gzip or deflate
-        curl_easy_setopt(curl, CURLOPT_TRANSFER_ENCODING, 1)     # Use transfer encoding
         curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 0)     # Do not cache DNS in curl
 
         if !isnothing(useragent)
