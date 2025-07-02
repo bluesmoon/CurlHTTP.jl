@@ -86,6 +86,7 @@ module CurlHTTP
 
 using Reexport
 using UUIDs
+using NetworkOptions
 @reexport using LibCURL
 
 export
@@ -204,7 +205,7 @@ Additionally the following options are set based on passed in parameters:
    * VERBOSE if `verbose` is true
    * SSLCERT if `certpath` is set
    * SSLKEY if `certpath` and `keypath` are set
-   * CAINFO defaults to `LibCURL.cacert` but can be overridden with `cacertpath`
+   * CAINFO defaults to `NetworkOptions.ca_roots()` but can be overridden with `cacertpath`
    * URL if `url` is set
    * USERAGENT if `useragent` is set to something other than `nothing`.
 """
@@ -281,8 +282,8 @@ mutable struct CurlEasy <: CurlHandle
                 throw(ArgumentError("Could not find the cacertpath `$cacertpath'"))
             end
             curl_easy_setopt(curl, CURLOPT_CAINFO, cacertpath)
-        else
-            curl_easy_setopt(curl, CURLOPT_CAINFO, LibCURL.cacert)
+        elseif !isnothing(NetworkOptions.ca_roots())
+            curl_easy_setopt(curl, CURLOPT_CAINFO, NetworkOptions.ca_roots())
         end
 
 
